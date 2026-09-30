@@ -35,7 +35,10 @@ import pickle
 import platform
 import random
 import re
-import resource
+try:
+    import resource
+except ImportError:  # Windows: the resource module is POSIX-only
+    resource = None
 import shutil
 import signal
 import subprocess
@@ -2303,6 +2306,9 @@ def monkey_patch_p2p_access_check():
 
 
 def set_ulimit(target_soft_limit=65535):
+    if resource is None:  # Windows: no-op
+        return
+
     # number of open files
     resource_type = resource.RLIMIT_NOFILE
     current_soft, current_hard = resource.getrlimit(resource_type)
